@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BISINDO: Ketik Kata (A-K-U)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* --- GLOBAL STYLE --- */
+        body { 
+            margin: 0; overflow: hidden; 
+            background-color: #87CEEB; 
+            font-family: 'Nunito', sans-serif;
+            background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
+            touch-action: none;
+        }
+
+        /* --- 1. HOMESCREEN --- */
+        #home-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9999;
+            background: linear-gradient(135deg, #87CEEB, #40E0D0);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .logo-container {
+            background: #fff; padding: 25px; border-radius: 50%;
+            width: 100px; height: 100px;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 10px 0 rgba(0,0,0,0.1); margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        .logo-icon { font-size: 50px; color: #FF4500; }
+        .title-main { font-family: 'Fredoka One'; font-size: 40px; color: #fff; text-shadow: 3px 3px 0 #FF69B4; margin: 0; letter-spacing: 2px; }
+        .btn-start {
+            margin-top: 40px; background: #FFD700; color: #d35400;
+            border: none; padding: 15px 50px; font-family: 'Fredoka One'; font-size: 20px;
+            border-radius: 50px; cursor: pointer; box-shadow: 0 8px 0 #DAA520; transition: all 0.2s;
+        }
+        .btn-start:active { transform: translateY(5px); box-shadow: 0 0 0 #DAA520; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+
+        /* --- 2. APLIKASI AR --- */
+        #ar-screen { display: none; width: 100%; height: 100%; position: absolute; top:0; left:0; }
+
+        #camera-frame {
+            position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px;
+            border: 10px solid #fff; border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; background: #fff;
+        }
+        #webcam { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); z-index: 0; }
+        #output_canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; transform: scaleX(-1); }
+
+        /* --- FITUR KETIK KATA (BARU) --- */
+        .word-box-container {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 20; display: flex; flex-direction: column; align-items: center; width: 80%;
+        }
+        .word-box {
+            background: white; padding: 10px 30px; border-radius: 20px;
+            border: 4px solid #FF69B4; box-shadow: 0 5px 0 #FF1493;
+            font-family: 'Fredoka One'; font-size: 30px; color: #333;
+            min-width: 200px; text-align: center; min-height: 40px;
+            margin-bottom: 10px; display: flex; justify-content: center; gap: 5px;
+        }
+        .word-actions { display: flex; gap: 10px; }
+        .action-btn {
+            background: #FFD700; border: none; padding: 8px 15px; border-radius: 15px;
+            font-weight: bold; color: #d35400; cursor: pointer; border-bottom: 3px solid #DAA520;
+        }
+        .action-btn:active { transform: translateY(2px); border-bottom: 0; }
+        .progress-bar {
+            width: 0%; height: 5px; background: #32CD32; border-radius: 5px;
+            margin-top: 5px; transition: width 0.1s linear;
+        }
+
+        /* UI LAIN */
+        .back-btn {
+            position: absolute; top: 20px; left: 20px;
+            background: #fff; width: 45px; height: 45px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 20px; color: #FF69B4; cursor: pointer; z-index: 20;
+            box-shadow: 0 4px 0 #ddd; border: 2px solid #FF69B4;
+        }
+        
+        .result-bubble {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #fff; padding: 10px 40px; border-radius: 40px; border: 5px solid #40E0D0;
+            text-align: center; z-index: 10; box-shadow: 0 6px 0 #20B2AA; min-width: 150px;
+            transition: transform 0.2s;
+        }
+        .result-text { font-family: 'Fredoka One', cursive; font-size: 60px; color: #FF4500; margin: 0; line-height: 1; text-shadow: 3px 3px 0 #FFD700; }
+        .helper-text { font-size: 12px; color: #aaa; margin-top: 5px; font-weight: bold; }
+
+        #loading-overlay {
+            position: absolute; inset: 0; background: rgba(135, 206, 235, 1); z-index: 99;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; font-family: 'Fredoka One'; text-align: center;
+        }
+    </style>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+    </script>
+</head>
+<body>
+
+    <div id="home-screen">
+        <div class="logo-container"><i class="fas fa-pen-nib logo-icon"></i></div>
+        <h1 class="title-main">BISINDO KATA</h1>
+        <p class="subtitle">Belajar Menulis Kata (A-K-U)</p>
+        <button class="btn-start" onclick="startApp()">MULAI MENULIS ▶</button>
+    </div>
+
+    <div id="ar-screen">
+        <div id="camera-frame">
+            <div class="back-btn" onclick="backToHome()"><i class="fas fa-home"></i></div>
+
+            <div class="word-box-container">
+                <div class="word-box" id="word-display">_</div>
+                <div class="progress-bar" id="lock-progress"></div>
+                <div class="word-actions">
+                    <button class="action-btn" onclick="clearWord()"><i class="fas fa-trash"></i> Hapus</button>
+                    <button class="action-btn" onclick="speakWord()"><i class="fas fa-volume-up"></i> Baca</button>
+                </div>
+            </div>
+
+            <div id="loading-overlay">
+                <i class="fas fa-spinner fa-spin" style="font-size: 40px; margin-bottom: 15px;"></i>
+                <div>Menyiapkan AI...</div>
+            </div>
+
+            <div class="result-bubble" id="res-bubble">
+                <div class="result-text" id="big-char">?</div>
+                <div class="helper-text" id="helper-text">Tahan 2 Detik...</div>
+            </div>
+
+            <video id="webcam" autoplay playsinline></video>
+            <canvas id="output_canvas"></canvas>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+        import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+        import { FilesetResolver, HandLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+
+        let handLandmarker = undefined;
+        let video, canvas, renderer, scene, camera;
+        let textMesh, loadedFont, currentLetter = "";
+        let isAppRunning = false;
+        
+        // VAR MENULIS KATA
+        let constructedWord = "";
+        let holdCounter = 0;
+        let lastDetected = "";
+        const HOLD_THRESHOLD = 60; // Sekitar 2 detik (30fps * 2)
+
+        // --- AUDIO ---
+        function initAudio() { const s = window.speechSynthesis; s.speak(new SpeechSynthesisUtterance("")); }
+        function speak(text) {
+            window.speechSynthesis.cancel(); 
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'id-ID'; u.rate = 1.0; u.pitch = 1.2; 
+            window.speechSynthesis.speak(u);
+        }
+        window.speakWord = () => { if(constructedWord) speak(constructedWord); else speak("Belum ada kata"); };
+        window.clearWord = () => { constructedWord = ""; updateWordUI(); speak("Hapus"); };
+
+        function updateWordUI() {
+            const display = document.getElementById('word-display');
+            display.innerText = constructedWord || "_";
+        }
+
+        // --- NAVIGASI ---
+        window.startApp = () => {
+            initAudio();
+            document.getElementById('home-screen').style.transform = "translateY(-100%)";
+            document.getElementById('ar-screen').style.display = 'block';
+            speak("Ayo tulis kata A KU");
+            if(!isAppRunning) initAR();
+        };
+        window.backToHome = () => {
+            document.getElementById('home-screen').style.transform = "translateY(0%)";
+            setTimeout(() => document.getElementById('ar-screen').style.display = 'none', 500);
+        };
+
+        // --- INIT AR ---
+        async function initAR() {
+            video = document.getElementById('webcam');
+            canvas = document.getElementById('output_canvas');
+
+            scene = new THREE.Scene();
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffd700, 0.5);
+            dirLight.position.set(5, 10, 7);
+            scene.add(dirLight);
+
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.z = 15;
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const fLoader = new FontLoader();
+            const fontPromise = new Promise(r => fLoader.load('https://unpkg.com/three@0.160.0/examples/fonts/gentilis_bold.typeface.json', r));
+            const visionPromise = FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
+            
+            const [font, vision] = await Promise.all([fontPromise, visionPromise]);
+            loadedFont = font;
+
+            handLandmarker = await HandLandmarker.createFromOptions(vision, {
+                baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", delegate: "GPU" },
+                runningMode: "VIDEO", numHands: 2, minHandDetectionConfidence: 0.6, minHandPresenceConfidence: 0.6, minTrackingConfidence: 0.6
+            });
+
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            video.srcObject = stream;
+            video.addEventListener("loadeddata", () => {
+                document.getElementById('loading-overlay').style.display = 'none';
+                isAppRunning = true;
+                loop();
+            });
+        }
+
+        const textMaterial = new THREE.MeshPhysicalMaterial({ color: 0xFFA500, metalness: 0.1, roughness: 0.2, clearcoat: 1.0 });
+
+        // --- LOGIKA DETEKSI (A, K, U, E, O) ---
+        function detectLetters(lm, lm2, isDualHand) {
+            const wrist = 0;
+            const getDist = (i, j) => Math.hypot(lm[i].x - lm[j].x, lm[i].y - lm[j].y);
+            const isExt = (tip, pip) => getDist(wrist, tip) > getDist(wrist, pip) + 0.02;
+
+            const T = isExt(8, 6);   // Telunjuk
+            const M = isExt(12, 10); // Tengah
+            const R = isExt(16, 14); // Manis
+            const K = isExt(20, 18); // Kelingking
+            const J = isExt(4, 2);   // Jempol
+            const distO = getDist(4, 8);
+
+            // 1. A (2 Tangan)
+            if (isDualHand && lm2) {
+                if (Math.hypot(lm[8].x - lm2[8].x, lm[8].y - lm2[8].y) < 0.15) return "A";
+            }
+
+            // 2. K (Telunjuk + Tengah + Jempol Lurus) - Prioritas Tinggi
+            if (T && M && J && !R && !K) return "K";
+
+            // 3. E (Telunjuk + Tengah + Manis Lurus) - Versi User
+            if (T && M && R && !K) return "E";
+
+            // 4. U (Telunjuk + Jempol Lurus)
+            if (T && J && !M && !R && !K) return "U";
+
+            // 5. I (Kelingking)
+            if (K && !T && !M && !R) return "I";
+
+            // 6. O (Cubit)
+            if (distO < 0.06) return "O";
+
+            return "";
+        }
+
+        // --- SISTEM HOLD TO TYPE ---
+        function handleTyping(char) {
+            const bar = document.getElementById('lock-progress');
+            
+            if (char !== "" && char === lastDetected) {
+                holdCounter++;
+                let progress = Math.min((holdCounter / HOLD_THRESHOLD) * 100, 100);
+                bar.style.width = progress + "%";
+
+                if (holdCounter === HOLD_THRESHOLD) {
+                    // Huruf Terkunci!
+                    constructedWord += char;
+                    updateWordUI();
+                    speak(char); // Baca hurufnya
+                    
+                    // Efek Visual
+                    bar.style.background = "#FFD700";
+                    setTimeout(() => bar.style.background = "#32CD32", 200);
+                }
+            } else {
+                holdCounter = 0;
+                bar.style.width = "0%";
+                lastDetected = char;
+            }
+        }
+
+        // --- UPDATE DISPLAY ---
+        function updateDisplay(char, handPos) {
+            // Logic 3D Text (Cuma visual bantu)
+            if(char !== currentLetter && char !== "") {
+                if(textMesh) { scene.remove(textMesh); textMesh.geometry.dispose(); }
+                
+                const geometry = new TextGeometry(char, { 
+                    font: loadedFont, size: 2.5, height: 0.5, 
+                    curveSegments: 10, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.05 
+                });
+                geometry.center();
+                const colors = [0xFF6347, 0x1E90FF, 0x32CD32, 0xFFD700, 0xFF69B4];
+                textMaterial.color.setHex(colors[Math.floor(Math.random() * colors.length)]);
+                textMesh = new THREE.Mesh(geometry, textMaterial);
+                scene.add(textMesh);
+
+                const bubble = document.getElementById('res-bubble');
+                bubble.style.transform = "translateX(-50%) scale(1.3)";
+                setTimeout(() => bubble.style.transform = "translateX(-50%) scale(1)", 200);
+            }
+            if(char === "") {
+                if(textMesh) { scene.remove(textMesh); textMesh.geometry.dispose(); textMesh=null; }
+            }
+            currentLetter = char;
+
+            if(textMesh) {
+                const targetVec = new THREE.Vector3((handPos.x - 0.5) * 15, -(handPos.y - 0.5) * 10 + 2, 0);
+                textMesh.position.lerp(targetVec, 0.1);
+                textMesh.rotation.y += 0.02;
+            }
+
+            document.getElementById('big-char').innerText = char || "?";
+            document.getElementById('helper-text').innerText = char ? "Tahan untuk Ketik..." : "Cari Huruf...";
+        }
+
+        function loop() {
+            const width = window.innerWidth; const height = window.innerHeight;
+            if (canvas.width !== width) { renderer.setSize(width, height); camera.aspect = width/height; camera.updateProjectionMatrix(); }
+
+            let startTimeMs = performance.now();
+            
+            if (handLandmarker && video.currentTime > 0) {
+                const results = handLandmarker.detectForVideo(video, startTimeMs);
+                let detected = "";
+                let handPos = {x:0.5, y:0.5};
+
+                if (results.landmarks.length > 0) {
+                    const lm = results.landmarks[0];
+                    const lm2 = results.landmarks.length > 1 ? results.landmarks[1] : null;
+                    const isDualHand = results.landmarks.length > 1;
+                    
+                    handPos = lm[9];
+                    detected = detectLetters(lm, lm2, isDualHand);
+                }
+                
+                handleTyping(detected); // Proses pengetikan
+                updateDisplay(detected, handPos);
+            }
+            renderer.render(scene, camera);
+            requestAnimationFrame(loop);
+        }
+    </script>
+</body>
+</html>
