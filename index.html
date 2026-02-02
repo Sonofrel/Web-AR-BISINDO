@@ -1,106 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BISINDO: Ketik Kata (A-K-U)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>BISINDO Translator Pro</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- GLOBAL STYLE --- */
+        /* --- VARIABLES & RESET --- */
+        :root {
+            --primary: #2563EB;
+            --success: #10B981;
+            --danger: #EF4444;
+            --dark: #1E293B;
+            --light: #F8FAFC;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
         body { 
             margin: 0; overflow: hidden; 
-            background-color: #87CEEB; 
-            font-family: 'Nunito', sans-serif;
-            background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
             touch-action: none;
         }
 
-        /* --- 1. HOMESCREEN --- */
+        /* --- HOME SCREEN --- */
         #home-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 9999;
-            background: linear-gradient(135deg, #87CEEB, #40E0D0);
-            display: flex; flex-direction: column;
+            position: absolute; inset: 0; z-index: 9999;
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+            display: flex; flex-direction: column; 
             justify-content: center; align-items: center;
-            text-align: center;
-            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            text-align: center; transition: opacity 0.5s ease;
         }
-
-        .logo-container {
-            background: #fff; padding: 25px; border-radius: 50%;
-            width: 100px; height: 100px;
-            display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 10px 0 rgba(0,0,0,0.1); margin-bottom: 20px;
-            animation: float 3s ease-in-out infinite;
+        .brand-logo {
+            width: 80px; height: 80px; background: var(--primary);
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: white; margin-bottom: 20px;
+            box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.4);
         }
-        .logo-icon { font-size: 50px; color: #FF4500; }
-        .title-main { font-family: 'Fredoka One'; font-size: 40px; color: #fff; text-shadow: 3px 3px 0 #FF69B4; margin: 0; letter-spacing: 2px; }
+        .app-title { font-size: 28px; font-weight: 800; color: white; margin: 0; }
         .btn-start {
-            margin-top: 40px; background: #FFD700; color: #d35400;
-            border: none; padding: 15px 50px; font-family: 'Fredoka One'; font-size: 20px;
-            border-radius: 50px; cursor: pointer; box-shadow: 0 8px 0 #DAA520; transition: all 0.2s;
-        }
-        .btn-start:active { transform: translateY(5px); box-shadow: 0 0 0 #DAA520; }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
-
-        /* --- 2. APLIKASI AR --- */
-        #ar-screen { display: none; width: 100%; height: 100%; position: absolute; top:0; left:0; }
-
-        #camera-frame {
-            position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px;
-            border: 10px solid #fff; border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; background: #fff;
-        }
-        #webcam { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); z-index: 0; }
-        #output_canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; transform: scaleX(-1); }
-
-        /* --- FITUR KETIK KATA (BARU) --- */
-        .word-box-container {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 20; display: flex; flex-direction: column; align-items: center; width: 80%;
-        }
-        .word-box {
-            background: white; padding: 10px 30px; border-radius: 20px;
-            border: 4px solid #FF69B4; box-shadow: 0 5px 0 #FF1493;
-            font-family: 'Fredoka One'; font-size: 30px; color: #333;
-            min-width: 200px; text-align: center; min-height: 40px;
-            margin-bottom: 10px; display: flex; justify-content: center; gap: 5px;
-        }
-        .word-actions { display: flex; gap: 10px; }
-        .action-btn {
-            background: #FFD700; border: none; padding: 8px 15px; border-radius: 15px;
-            font-weight: bold; color: #d35400; cursor: pointer; border-bottom: 3px solid #DAA520;
-        }
-        .action-btn:active { transform: translateY(2px); border-bottom: 0; }
-        .progress-bar {
-            width: 0%; height: 5px; background: #32CD32; border-radius: 5px;
-            margin-top: 5px; transition: width 0.1s linear;
+            background: var(--primary); color: white; border: none;
+            padding: 16px 60px; border-radius: 12px;
+            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px;
+            margin-top: 40px; cursor: pointer;
         }
 
-        /* UI LAIN */
+        /* --- AR SCREEN --- */
+        #ar-screen { display: none; position: absolute; inset: 0; background: black; }
+        #webcam { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        #output_canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; transform: scaleX(-1); }
+
+        /* UI HEADER (BACK BUTTON) */
+        .ar-header {
+            position: absolute; top: 0; left: 0; right: 0; padding: 20px; z-index: 20;
+        }
         .back-btn {
-            position: absolute; top: 20px; left: 20px;
-            background: #fff; width: 45px; height: 45px; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 20px; color: #FF69B4; cursor: pointer; z-index: 20;
-            box-shadow: 0 4px 0 #ddd; border: 2px solid #FF69B4;
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.3); width: 45px; height: 45px;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 18px; cursor: pointer;
         }
-        
-        .result-bubble {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: #fff; padding: 10px 40px; border-radius: 40px; border: 5px solid #40E0D0;
-            text-align: center; z-index: 10; box-shadow: 0 6px 0 #20B2AA; min-width: 150px;
-            transition: transform 0.2s;
-        }
-        .result-text { font-family: 'Fredoka One', cursive; font-size: 60px; color: #FF4500; margin: 0; line-height: 1; text-shadow: 3px 3px 0 #FFD700; }
-        .helper-text { font-size: 12px; color: #aaa; margin-top: 5px; font-weight: bold; }
 
+        /* --- WORD BUILDER UI (FITUR MENULIS) --- */
+        .word-builder-container {
+            position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 200px; z-index: 20;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        /* Kotak Kata Utama */
+        .word-box {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 15px 20px;
+            display: flex; flex-direction: column; align-items: center;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        #word-display {
+            font-size: 24px; font-weight: 700; color: var(--dark);
+            letter-spacing: 2px; min-height: 36px;
+        }
+
+        /* Progress Bar (Garis Hijau) */
+        .progress-track {
+            width: 100%; height: 6px; background: #E2E8F0;
+            border-radius: 10px; margin-top: 10px; overflow: hidden;
+        }
+        #lock-progress {
+            width: 0%; height: 100%; background: var(--success);
+            transition: width 0.1s linear;
+        }
+
+        /* Tombol Aksi (Hapus/Baca) */
+        .action-buttons {
+            display: flex; gap: 10px; width: 100%; justify-content: center;
+        }
+        .act-btn {
+            flex: 1; border: none; padding: 10px; border-radius: 12px;
+            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .btn-clear { background: white; color: var(--danger); }
+        .btn-speak { background: var(--primary); color: white; }
+        .act-btn:active { transform: scale(0.98); }
+
+        /* --- SCANNER RESULT (BAWAH) --- */
+        .result-container {
+            position: absolute; bottom: 30px; left: 20px; right: 20px;
+            background: var(--glass); padding: 20px; border-radius: 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            z-index: 20; border: 1px solid rgba(255,255,255,0.8);
+        }
+        .result-label { font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase; }
+        .result-value { font-size: 32px; color: var(--dark); font-weight: 800; line-height: 1; }
+        .scan-indicator {
+            width: 40px; height: 40px; border-radius: 50%; background: #E0F2FE;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary); font-size: 20px;
+        }
+
+        /* Loading */
         #loading-overlay {
-            position: absolute; inset: 0; background: rgba(135, 206, 235, 1); z-index: 99;
+            position: absolute; inset: 0; background: var(--light); z-index: 50;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: white; font-family: 'Fredoka One'; text-align: center;
         }
     </style>
 
@@ -111,38 +140,46 @@
 <body>
 
     <div id="home-screen">
-        <div class="logo-container"><i class="fas fa-pen-nib logo-icon"></i></div>
-        <h1 class="title-main">BISINDO KATA</h1>
-        <p class="subtitle">Belajar Menulis Kata (A-K-U)</p>
-        <button class="btn-start" onclick="startApp()">MULAI MENULIS ▶</button>
+        <div class="brand-logo"><i class="fas fa-hands-asl-interpreting"></i></div>
+        <h1 class="app-title">BISINDO Pro</h1>
+        <p style="color:#94A3B8; margin-top:5px;">Penerjemah Isyarat Real-Time</p>
+        <button class="btn-start" onclick="startApp()">MULAI SESI</button>
     </div>
 
     <div id="ar-screen">
-        <div id="camera-frame">
-            <div class="back-btn" onclick="backToHome()"><i class="fas fa-home"></i></div>
+        <div id="loading-overlay">
+            <i class="fas fa-circle-notch fa-spin" style="font-size: 30px; color: #2563EB;"></i>
+            <div style="margin-top:15px; font-weight:600; color:#475569;">Memuat AI...</div>
+        </div>
 
-            <div class="word-box-container">
-                <div class="word-box" id="word-display">_</div>
-                <div class="progress-bar" id="lock-progress"></div>
-                <div class="word-actions">
-                    <button class="action-btn" onclick="clearWord()"><i class="fas fa-trash"></i> Hapus</button>
-                    <button class="action-btn" onclick="speakWord()"><i class="fas fa-volume-up"></i> Baca</button>
+        <div class="ar-header">
+            <div class="back-btn" onclick="location.reload()"><i class="fas fa-chevron-left"></i></div>
+        </div>
+
+        <div class="word-builder-container">
+            <div class="word-box">
+                <div style="font-size: 10px; color: #64748B; letter-spacing: 1px; width: 100%;">KATA TERBENTUK:</div>
+                <div id="word-display">...</div>
+                <div class="progress-track">
+                    <div id="lock-progress"></div>
                 </div>
             </div>
-
-            <div id="loading-overlay">
-                <i class="fas fa-spinner fa-spin" style="font-size: 40px; margin-bottom: 15px;"></i>
-                <div>Menyiapkan AI...</div>
+            <div class="action-buttons">
+                <button class="act-btn btn-clear" onclick="clearWord()"><i class="fas fa-trash"></i> Hapus</button>
+                <button class="act-btn btn-speak" onclick="speakWord()"><i class="fas fa-volume-up"></i> Baca</button>
             </div>
-
-            <div class="result-bubble" id="res-bubble">
-                <div class="result-text" id="big-char">?</div>
-                <div class="helper-text" id="helper-text">Tahan 2 Detik...</div>
-            </div>
-
-            <video id="webcam" autoplay playsinline></video>
-            <canvas id="output_canvas"></canvas>
         </div>
+
+        <div class="result-container">
+            <div>
+                <div class="result-label">Terdeteksi</div>
+                <div class="result-value" id="big-char">...</div>
+            </div>
+            <div class="scan-indicator"><i class="fas fa-camera"></i></div>
+        </div>
+
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="output_canvas"></canvas>
     </div>
 
     <script type="module">
@@ -151,162 +188,137 @@
         import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
         import { FilesetResolver, HandLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
 
-        let handLandmarker = undefined;
-        let video, canvas, renderer, scene, camera;
-        let textMesh, loadedFont, currentLetter = "";
-        let isAppRunning = false;
+        let handLandmarker, video, canvas, renderer, scene, camera, textMesh, loadedFont;
         
-        // VAR MENULIS KATA
+        // VARIABLE UNTUK MENULIS KATA
         let constructedWord = "";
         let holdCounter = 0;
         let lastDetected = "";
-        const HOLD_THRESHOLD = 60; // Sekitar 2 detik (30fps * 2)
+        let currentLetter = "";
+        const HOLD_THRESHOLD = 50; // Sekitar 1.5 - 2 Detik
 
-        // --- AUDIO ---
-        function initAudio() { const s = window.speechSynthesis; s.speak(new SpeechSynthesisUtterance("")); }
-        function speak(text) {
-            window.speechSynthesis.cancel(); 
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'id-ID'; u.rate = 1.0; u.pitch = 1.2; 
-            window.speechSynthesis.speak(u);
+        // --- AUDIO SYSTEM ---
+        function initAudio() { 
+            const s = window.speechSynthesis; 
+            s.speak(new SpeechSynthesisUtterance("")); 
         }
-        window.speakWord = () => { if(constructedWord) speak(constructedWord); else speak("Belum ada kata"); };
-        window.clearWord = () => { constructedWord = ""; updateWordUI(); speak("Hapus"); };
+        
+        window.speakWord = () => { 
+            const text = constructedWord || "Belum ada kata";
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'id-ID'; u.rate = 1.0;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(u);
+        };
+
+        window.clearWord = () => { 
+            constructedWord = ""; 
+            updateWordUI(); 
+        };
 
         function updateWordUI() {
             const display = document.getElementById('word-display');
-            display.innerText = constructedWord || "_";
+            display.innerText = constructedWord || "...";
         }
 
-        // --- NAVIGASI ---
-        window.startApp = () => {
+        // --- MAIN APP START ---
+        window.startApp = async () => {
             initAudio();
-            document.getElementById('home-screen').style.transform = "translateY(-100%)";
+            document.getElementById('home-screen').style.opacity = '0';
+            setTimeout(() => { document.getElementById('home-screen').style.display = 'none'; }, 500);
             document.getElementById('ar-screen').style.display = 'block';
-            speak("Ayo tulis kata A KU");
-            if(!isAppRunning) initAR();
-        };
-        window.backToHome = () => {
-            document.getElementById('home-screen').style.transform = "translateY(0%)";
-            setTimeout(() => document.getElementById('ar-screen').style.display = 'none', 500);
-        };
 
-        // --- INIT AR ---
-        async function initAR() {
-            video = document.getElementById('webcam');
-            canvas = document.getElementById('output_canvas');
-
-            scene = new THREE.Scene();
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
-            scene.add(ambientLight);
-            const dirLight = new THREE.DirectionalLight(0xffd700, 0.5);
-            dirLight.position.set(5, 10, 7);
-            scene.add(dirLight);
-
-            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.z = 15;
-
-            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-            const fLoader = new FontLoader();
-            const fontPromise = new Promise(r => fLoader.load('https://unpkg.com/three@0.160.0/examples/fonts/gentilis_bold.typeface.json', r));
-            const visionPromise = FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
-            
-            const [font, vision] = await Promise.all([fontPromise, visionPromise]);
-            loadedFont = font;
-
+            // Init MediaPipe
+            const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
             handLandmarker = await HandLandmarker.createFromOptions(vision, {
                 baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", delegate: "GPU" },
-                runningMode: "VIDEO", numHands: 2, minHandDetectionConfidence: 0.6, minHandPresenceConfidence: 0.6, minTrackingConfidence: 0.6
+                runningMode: "VIDEO", numHands: 2, 
+                minHandDetectionConfidence: 0.6, minHandPresenceConfidence: 0.6, minTrackingConfidence: 0.6
             });
 
+            video = document.getElementById('webcam');
+            canvas = document.getElementById('output_canvas');
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
             video.srcObject = stream;
-            video.addEventListener("loadeddata", () => {
-                document.getElementById('loading-overlay').style.display = 'none';
-                isAppRunning = true;
-                loop();
-            });
-        }
 
-        const textMaterial = new THREE.MeshPhysicalMaterial({ color: 0xFFA500, metalness: 0.1, roughness: 0.2, clearcoat: 1.0 });
+            // Init ThreeJS
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.z = 15;
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            const light = new THREE.DirectionalLight(0xffffff, 1.5);
+            light.position.set(2, 2, 5);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            
+            const loader = new FontLoader();
+            loadedFont = await new Promise(r => loader.load('https://unpkg.com/three@0.160.0/examples/fonts/gentilis_bold.typeface.json', r));
+            
+            document.getElementById('loading-overlay').style.display = 'none';
+            loop();
+        };
 
-        // --- LOGIKA DETEKSI (A, K, U, E, O) ---
-function detectLetters(lm, lm2, isDualHand) {
-            const wrist = 0;
+        // --- LOGIKA DETEKSI JARI (SPESIAL A & B) ---
+        function detectLetters(lm, lm2, isDualHand) {
             const getDist = (i, j) => Math.hypot(lm[i].x - lm[j].x, lm[i].y - lm[j].y);
             
-            // Cek apakah jari LURUS (Extended)
-            // Logic: Jarak Wrist ke Ujung Jari > Jarak Wrist ke Ruas Jari + toleransi
-            const isExt = (tip, pip) => getDist(wrist, tip) > getDist(wrist, pip) + 0.02;
+            // Logic Jari Lurus (Tip jauh dari pip)
+            const isExt = (tip, pip) => getDist(0, tip) > getDist(0, pip) + 0.03;
 
-            // Cek apakah jari MENEKUK (Folded)
-            const isFold = (tip, pip) => getDist(wrist, tip) < getDist(wrist, pip);
-
-            const T = isExt(8, 6);   // Telunjuk (Index)
-            const M = isExt(12, 10); // Tengah (Middle)
-            const R = isExt(16, 14); // Manis (Ring)
-            const K = isExt(20, 18); // Kelingking (Pinky)
-            const J = isExt(4, 2);   // Jempol (Thumb) - kadang tricky
+            const T = isExt(8, 6);   // Telunjuk
+            const M = isExt(12, 10); // Tengah
+            const R = isExt(16, 14); // Manis
+            const K = isExt(20, 18); // Kelingking
             
-            // Jarak khusus
-            const distO = getDist(4, 8); // Jempol ke Telunjuk (buat O)
-            
-            // --- DETEKSI HURUF ---
+            // Jempol Lurus (Cek jarak ujung jempol ke pangkal jari telunjuk)
+            const J_ext = getDist(4, 5) > 0.05;
 
-            // 1. A (2 Tangan - Segitiga)
+            // Jarak-jarak penting
+            const dist_J_M = getDist(4, 12); // Jempol ke Tengah
+            const dist_J_T = getDist(4, 8);  // Jempol ke Telunjuk
+
+            // --- 1. A (2 Tangan) ---
             if (isDualHand && lm2) {
-                if (Math.hypot(lm[8].x - lm2[8].x, lm[8].y - lm2[8].y) < 0.15) return "A";
+                const distTips = Math.hypot(lm[8].x - lm2[8].x, lm[8].y - lm2[8].y);
+                if (distTips < 0.25 && T) return "A";
             }
 
-            // 2. B (4 Jari Tegak, Jempol Tekuk)
-            if (T && M && R && K && !J) return "B";
+            // --- 2. B (BISINDO: 4 Jari Rapat Tegak, Jempol Tekuk) ---
+            if (T && M && R && K) { // Syarat 1: 4 Jari Lurus
+                if (!J_ext) { // Syarat 2: Jempol Tekuk
+                    // Syarat 3: Cek kerapatan antar jari (agar beda dgn angka 4/5)
+                    const gap1 = getDist(8, 12);  // Telunjuk-Tengah
+                    const gap2 = getDist(12, 16); // Tengah-Manis
+                    const gap3 = getDist(16, 20); // Manis-Kelingking
+                    const limit = 0.06; // Batas kerapatan
 
-            // 3. C (Melengkung - Agak tricky, biasanya semua tidak full extend tapi juga tidak full fold)
-            // Kita pakai logic sederhana: Jempol & Telunjuk agak jauh tapi melengkung
-            // (Opsional, C sering susah dideteksi tanpa depth)
-            
-            // 4. D (Telunjuk Tegak, Sisanya Bulat bertemu jempol)
-            if (T && !M && !R && !K && getDist(4, 12) < 0.05) return "D";
+                    if (gap1 < limit && gap2 < limit && gap3 < limit) {
+                        return "B";
+                    }
+                }
+            }
 
-            // 5. E (Cakar / Semua jari nekuk)
-            if (!T && !M && !R && !K && !J) return "E";
+            // --- 3. HURUF LAIN (OPSIONAL / PELENGKAP) ---
+            // F (OK Sign)
+            if (dist_J_T < 0.05 && M && R && K) return "F";
 
-            // 6. F (OK Sign - Telunjuk & Jempol nempel, 3 jari tegak)
-            if (M && R && K && distO < 0.05) return "F";
+            // D (Telunjuk Lurus, Bulat)
+            if (T && !M && !R && !K && dist_J_M < 0.06) return "D";
 
-            // 7. I (Kelingking Saja)
+            // I (Kelingking)
             if (K && !T && !M && !R) return "I";
 
-            // 8. K (Telunjuk & Tengah Tegak, Jempol nyelip diantaranya - Versi Simple: V + Jempol)
-            // Prioritas lebih tinggi dari V & U
-            if (T && M && J && !R && !K) return "K";
+            // U (Telunjuk Jempol)
+            if (T && J_ext && !M && !R && !K) return "U";
 
-            // 9. L (Telunjuk & Jempol Lurus membentuk L)
-            if (T && J && !M && !R && !K) return "L";
+            // O (Cubit)
+            if (dist_J_T < 0.06 && !M && !R && !K) return "O";
 
-            // 10. O (Bulat / Cubit)
-            if (distO < 0.06 && !M && !R && !K) return "O";
-
-            // 11. U (Telunjuk & Tengah Rapat Tegak)
-            if (T && M && !R && !K && !J) return "U";
-
-            // 12. V (Telunjuk & Tengah Pisah Tegak) - Sering ketukar sama U & K
-            // Kita anggap sama dulu atau bedakan via jarak jari 8 dan 12
-            if (T && M && !R && !K && !J && getDist(8, 12) > 0.05) return "V";
-
-            // 13. W (3 Jari Tegak)
-            if (T && M && R && !K) return "W";
-
-            // 14. Y (Jempol & Kelingking Tegak - Telpon)
-            if (J && K && !T && !M && !R) return "Y";
-
-            return ""; // Tidak terdeteksi
+            return "";
         }
 
-        // --- SISTEM HOLD TO TYPE ---
+        // --- PROSES MENULIS (HOLD TO TYPE) ---
         function handleTyping(char) {
             const bar = document.getElementById('lock-progress');
             
@@ -317,13 +329,17 @@ function detectLetters(lm, lm2, isDualHand) {
 
                 if (holdCounter === HOLD_THRESHOLD) {
                     // Huruf Terkunci!
-                    constructedWord += char;
+                    constructedWord += char.charAt(0);
                     updateWordUI();
-                    speak(char); // Baca hurufnya
                     
                     // Efek Visual
-                    bar.style.background = "#FFD700";
-                    setTimeout(() => bar.style.background = "#32CD32", 200);
+                    bar.style.backgroundColor = "#10B981"; // Hijau
+                    setTimeout(() => { 
+                        bar.style.width = "0%"; 
+                        bar.style.backgroundColor = "#2563EB"; 
+                    }, 500);
+                    
+                    holdCounter = 0;
                 }
             } else {
                 holdCounter = 0;
@@ -332,63 +348,62 @@ function detectLetters(lm, lm2, isDualHand) {
             }
         }
 
-        // --- UPDATE DISPLAY ---
-        function updateDisplay(char, handPos) {
-            // Logic 3D Text (Cuma visual bantu)
-            if(char !== currentLetter && char !== "") {
-                if(textMesh) { scene.remove(textMesh); textMesh.geometry.dispose(); }
-                
-                const geometry = new TextGeometry(char, { 
-                    font: loadedFont, size: 2.5, height: 0.5, 
-                    curveSegments: 10, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.05 
-                });
-                geometry.center();
-                const colors = [0xFF6347, 0x1E90FF, 0x32CD32, 0xFFD700, 0xFF69B4];
-                textMaterial.color.setHex(colors[Math.floor(Math.random() * colors.length)]);
-                textMesh = new THREE.Mesh(geometry, textMaterial);
-                scene.add(textMesh);
-
-                const bubble = document.getElementById('res-bubble');
-                bubble.style.transform = "translateX(-50%) scale(1.3)";
-                setTimeout(() => bubble.style.transform = "translateX(-50%) scale(1)", 200);
-            }
-            if(char === "") {
-                if(textMesh) { scene.remove(textMesh); textMesh.geometry.dispose(); textMesh=null; }
-            }
-            currentLetter = char;
-
-            if(textMesh) {
-                const targetVec = new THREE.Vector3((handPos.x - 0.5) * 15, -(handPos.y - 0.5) * 10 + 2, 0);
-                textMesh.position.lerp(targetVec, 0.1);
-                textMesh.rotation.y += 0.02;
-            }
-
-            document.getElementById('big-char').innerText = char || "?";
-            document.getElementById('helper-text').innerText = char ? "Tahan untuk Ketik..." : "Cari Huruf...";
-        }
-
+        // --- LOOP UTAMA ---
         function loop() {
             const width = window.innerWidth; const height = window.innerHeight;
             if (canvas.width !== width) { renderer.setSize(width, height); camera.aspect = width/height; camera.updateProjectionMatrix(); }
-
-            let startTimeMs = performance.now();
             
             if (handLandmarker && video.currentTime > 0) {
-                const results = handLandmarker.detectForVideo(video, startTimeMs);
-                let detected = "";
-                let handPos = {x:0.5, y:0.5};
-
+                const results = handLandmarker.detectForVideo(video, performance.now());
+                
                 if (results.landmarks.length > 0) {
                     const lm = results.landmarks[0];
                     const lm2 = results.landmarks.length > 1 ? results.landmarks[1] : null;
-                    const isDualHand = results.landmarks.length > 1;
-                    
-                    handPos = lm[9];
-                    detected = detectLetters(lm, lm2, isDualHand);
+                    const isDual = results.landmarks.length > 1;
+
+                    // 1. Deteksi Huruf
+                    const char = detectLetters(lm, lm2, isDual);
+
+                    // 2. Jalankan Logika Menulis
+                    handleTyping(char);
+
+                    if (char) {
+                        // Update UI
+                        document.getElementById('big-char').innerText = char;
+                        document.querySelector('.scan-indicator').style.color = '#2563EB';
+
+                        // Update 3D Text
+                        if (char !== currentLetter) {
+                            if(textMesh) { scene.remove(textMesh); if(textMesh.geometry) textMesh.geometry.dispose(); }
+                            
+                            const textMat = new THREE.MeshPhongMaterial({ color: 0xFFFFFF, specular: 0x111111 });
+                            const geometry = new TextGeometry(char.charAt(0), { font: loadedFont, size: 2, height: 0.2 });
+                            geometry.center();
+                            textMesh = new THREE.Mesh(geometry, textMat);
+                            scene.add(textMesh);
+                        }
+                        
+                        if(textMesh) {
+                            textMesh.position.set((lm[9].x - 0.5) * -15, -(lm[9].y - 0.5) * 10 + 2, -5);
+                            textMesh.rotation.y += 0.05; textMesh.rotation.x = 0.1;
+                        }
+                        currentLetter = char;
+                    } else {
+                        // Tangan ada, huruf tidak kenal -> HAPUS 3D
+                        if(textMesh) { scene.remove(textMesh); textMesh=null; }
+                        currentLetter = "";
+                        document.getElementById('big-char').innerText = "...";
+                        document.querySelector('.scan-indicator').style.color = '#F59E0B'; // Kuning
+                    }
+                } else {
+                    // Tangan Hilang -> HAPUS 3D & RESET
+                    if(textMesh) { scene.remove(textMesh); textMesh=null; }
+                    currentLetter = "";
+                    lastDetected = ""; 
+                    document.getElementById('lock-progress').style.width = "0%";
+                    document.getElementById('big-char').innerText = "...";
+                    document.querySelector('.scan-indicator').style.color = '#ccc';
                 }
-                
-                handleTyping(detected); // Proses pengetikan
-                updateDisplay(detected, handPos);
             }
             renderer.render(scene, camera);
             requestAnimationFrame(loop);
