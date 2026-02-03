@@ -259,61 +259,91 @@
             loop();
         };
 
-        // --- LOGIKA DETEKSI JARI (SPESIAL A & B) ---
+        // --- LOGIKA DETEKSI JARI (UPDATE: A, B, C, D) ---
         function detectLetters(lm, lm2, isDualHand) {
             const getDist = (i, j) => Math.hypot(lm[i].x - lm[j].x, lm[i].y - lm[j].y);
             
-            // Logic Jari Lurus (Tip jauh dari pip)
-            const isExt = (tip, pip) => getDist(0, tip) > getDist(0, pip) + 0.03;
+            // Helper: Cek Jari Lurus
+            const isExt = (lmParams, tip, pip) => {
+                const dTip = Math.hypot(lmParams[tip].x - lmParams[0].x, lmParams[tip].y - lmParams[0].y);
+                const dPip = Math.hypot(lmParams[pip].x - lmParams[0].x, lmParams[pip].y - lmParams[0].y);
+                return dTip > dPip + 0.04; 
+            };
 
-            const T = isExt(8, 6);   // Telunjuk
-            const M = isExt(12, 10); // Tengah
-            const R = isExt(16, 14); // Manis
-            const K = isExt(20, 18); // Kelingking
-            
-            // Jempol Lurus (Cek jarak ujung jempol ke pangkal jari telunjuk)
-            const J_ext = getDist(4, 5) > 0.05;
+            // Helper: Status 5 Jari
+            const checkHandPattern = (handLM) => {
+                return {
+                    T: isExt(handLM, 8, 6),   // Telunjuk
+                    M: isExt(handLM, 12, 10), // Tengah
+                    R: isExt(handLM, 16, 14), // Manis
+                    K: isExt(handLM, 20, 18), // Kelingking
+                };
+            };
 
-            // Jarak-jarak penting
-            const dist_J_M = getDist(4, 12); // Jempol ke Tengah
-            const dist_J_T = getDist(4, 8);  // Jempol ke Telunjuk
-
-            // --- 1. A (2 Tangan) ---
+            // --- 1. DETEKSI DUA TANGAN (Prioritas: A, B, D) ---
             if (isDualHand && lm2) {
-                const distTips = Math.hypot(lm[8].x - lm2[8].x, lm[8].y - lm2[8].y);
-                if (distTips < 0.25 && T) return "A";
-            }
+                const h1 = checkHandPattern(lm);
+                const h2 = checkHandPattern(lm2);
+                
+                // Definisi Bentuk Dasar:
+                // 1. POLE (Tiang/Angka 1): Cuma Telunjuk Lurus
+                const isPole = (h) => h.T && !h.M && !h.R && !h.K;
+                
+                // 2. THREE (Angka 3 untuk B): Telunjuk, Tengah, Manis Lurus
+                const isThree = (h) => h.T && h.M && h.R && !h.K;
 
-            // --- 2. B (BISINDO: 4 Jari Rapat Tegak, Jempol Tekuk) ---
-            if (T && M && R && K) { // Syarat 1: 4 Jari Lurus
-                if (!J_ext) { // Syarat 2: Jempol Tekuk
-                    // Syarat 3: Cek kerapatan antar jari (agar beda dgn angka 4/5)
-                    const gap1 = getDist(8, 12);  // Telunjuk-Tengah
-                    const gap2 = getDist(12, 16); // Tengah-Manis
-                    const gap3 = getDist(16, 20); // Manis-Kelingking
-                    const limit = 0.06; // Batas kerapatan
+                // 3. SHAPE C (Lengkung untuk D): Sisa jari tekuk, ada jarak Jempol-Telunjuk
+                const isShapeC = (h, lmData) => {
+                    const gap = Math.hypot(lmData[4].x - lmData[8].x, lmData[4].y - lmData[8].y);
+                    return !h.M && !h.R && !h.K && gap > 0.05 && gap < 0.25;
+                };
 
-                    if (gap1 < limit && gap2 < limit && gap3 < limit) {
-                        return "B";
-                    }
+                // Cek Status Tangan Kiri & Kanan
+                const h1_Pole = isPole(h1);
+                const h2_Pole = isPole(h2);
+                
+                const distHands = Math.hypot(lm[8].x - lm2[8].x, lm[8].y - lm2[8].y);
+
+                // --- HURUF A (Dua Tiang Nempel) ---
+                if (h1_Pole && h2_Pole && distHands < 0.25) return "A";
+
+                // --- HURUF B (Satu Tiang + Satu Angka 3) ---
+                const h1_Three = isThree(h1);
+                const h2_Three = isThree(h2);
+                if ((h1_Pole && h2_Three) || (h1_Three && h2_Pole)) {
+                    if (distHands < 0.35) return "B";
+                }
+
+                // --- HURUF D (Satu Tiang + Satu Huruf C) ---
+                const h1_C = isShapeC(h1, lm);
+                const h2_C = isShapeC(h2, lm2);
+                // Logika: Kiri C + Kanan Tiang ATAU Kiri Tiang + Kanan C
+                if ((h1_C && h2_Pole) || (h1_Pole && h2_C)) {
+                    if (distHands < 0.35) return "D";
                 }
             }
 
-            // --- 3. HURUF LAIN (OPSIONAL / PELENGKAP) ---
-            // F (OK Sign)
-            if (dist_J_T < 0.05 && M && R && K) return "F";
+            // --- 2. DETEKSI SATU TANGAN (C, O, dll) ---
+            const stat = checkHandPattern(lm);
+            const dist_J_T = getDist(4, 8); // Jarak Jempol-Telunjuk
 
-            // D (Telunjuk Lurus, Bulat)
-            if (T && !M && !R && !K && dist_J_M < 0.06) return "D";
+            // C (Satu Tangan)
+            if (!stat.M && !stat.R && !stat.K) {
+                if (dist_J_T > 0.06 && dist_J_T < 0.22) return "C";
+            }
+
+            // O (Bulat/Nempel)
+            if (dist_J_T <= 0.06 && !stat.M && !stat.R && !stat.K) return "O";
+
+            // F (OK Sign)
+            if (dist_J_T < 0.06 && stat.M && stat.R && stat.K) return "F";
 
             // I (Kelingking)
-            if (K && !T && !M && !R) return "I";
+            if (stat.K && !stat.T && !stat.M && !stat.R) return "I";
 
             // U (Telunjuk Jempol)
-            if (T && J_ext && !M && !R && !K) return "U";
-
-            // O (Cubit)
-            if (dist_J_T < 0.06 && !M && !R && !K) return "O";
+            const J_Straight = Math.hypot(lm[4].x - lm[5].x, lm[4].y - lm[5].y) > 0.05;
+            if (stat.T && J_Straight && !stat.M && !stat.R && !stat.K) return "U";
 
             return "";
         }
