@@ -3,133 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BISINDO Translator Pro</title>
+    <title>BISINDO Pro: A-N Complete</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- VARIABLES & RESET --- */
+        /* --- VARIABLES --- */
         :root {
             --primary: #2563EB;
+            --accent: #F59E0B;
             --success: #10B981;
             --danger: #EF4444;
-            --dark: #1E293B;
-            --light: #F8FAFC;
-            --glass: rgba(255, 255, 255, 0.9);
+            --dark: #0F172A;
+            --glass: rgba(20, 20, 30, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.2);
         }
 
         body { 
             margin: 0; overflow: hidden; 
             font-family: 'Poppins', sans-serif;
-            background-color: var(--light);
+            background-color: #000;
             touch-action: none;
         }
 
         /* --- HOME SCREEN --- */
         #home-screen {
             position: absolute; inset: 0; z-index: 9999;
-            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+            background: linear-gradient(135deg, #0F172A 0%, #000000 100%);
             display: flex; flex-direction: column; 
             justify-content: center; align-items: center;
             text-align: center; transition: opacity 0.5s ease;
+            padding: 20px;
         }
         .brand-logo {
-            width: 80px; height: 80px; background: var(--primary);
-            border-radius: 20px; display: flex; align-items: center; justify-content: center;
-            font-size: 40px; color: white; margin-bottom: 20px;
-            box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.4);
+            width: 90px; height: 90px; background: var(--primary);
+            border-radius: 24px; display: flex; align-items: center; justify-content: center;
+            font-size: 45px; color: white; margin-bottom: 20px;
+            box-shadow: 0 0 50px rgba(37, 99, 235, 0.4);
+            animation: float 3s ease-in-out infinite;
         }
-        .app-title { font-size: 28px; font-weight: 800; color: white; margin: 0; }
-        .btn-start {
-            background: var(--primary); color: white; border: none;
-            padding: 16px 60px; border-radius: 12px;
-            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px;
-            margin-top: 40px; cursor: pointer;
-        }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 
+        .app-title { font-size: 32px; font-weight: 800; color: white; margin: 0; letter-spacing: -1px; }
+        
+        .btn-group {
+            display: flex; flex-direction: column; gap: 15px; margin-top: 50px; width: 100%; max-width: 280px;
+        }
+        .btn-menu {
+            position: relative; overflow: hidden;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 18px; border-radius: 20px;
+            font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 16px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.2s;
+        }
+        .btn-menu:active { transform: scale(0.96); background: rgba(255,255,255,0.1); }
+        .btn-primary { background: var(--primary); border: none; box-shadow: 0 10px 30px -5px rgba(37,99,235,0.5); }
+        
         /* --- AR SCREEN --- */
         #ar-screen { display: none; position: absolute; inset: 0; background: black; }
         #webcam { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         #output_canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; transform: scaleX(-1); }
 
-        /* UI HEADER (BACK BUTTON) */
-        .ar-header {
-            position: absolute; top: 0; left: 0; right: 0; padding: 20px; z-index: 20;
-        }
+        .ar-header { position: absolute; top: 15px; left: 15px; z-index: 30; }
         .back-btn {
-            background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.3); width: 45px; height: 45px;
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+            width: 45px; height: 45px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
             color: white; font-size: 18px; cursor: pointer;
         }
 
-        /* --- WORD BUILDER UI (FITUR MENULIS) --- */
+        /* --- UI ELEMENTS --- */
+        #practice-ui { display: none; }
         .word-builder-container {
-            position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 200px; z-index: 20;
-            display: flex; flex-direction: column; gap: 10px;
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 85%; max-width: 300px; z-index: 20;
+            display: flex; flex-direction: column; gap: 8px;
         }
-
-        /* Kotak Kata Utama */
         .word-box {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 15px 20px;
-            display: flex; flex-direction: column; align-items: center;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
+            border-radius: 20px; padding: 10px 20px; text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-
-        #word-display {
-            font-size: 24px; font-weight: 700; color: var(--dark);
-            letter-spacing: 2px; min-height: 36px;
-        }
-
-        /* Progress Bar (Garis Hijau) */
-        .progress-track {
-            width: 100%; height: 6px; background: #E2E8F0;
-            border-radius: 10px; margin-top: 10px; overflow: hidden;
-        }
-        #lock-progress {
-            width: 0%; height: 100%; background: var(--success);
-            transition: width 0.1s linear;
-        }
-
-        /* Tombol Aksi (Hapus/Baca) */
-        .action-buttons {
-            display: flex; gap: 10px; width: 100%; justify-content: center;
-        }
+        .word-label { font-size: 9px; font-weight: 700; color: #64748B; letter-spacing: 1px; }
+        #word-display { font-size: 24px; font-weight: 800; color: var(--dark); min-height: 36px; }
+        .progress-track { width: 100%; height: 5px; background: #ddd; border-radius: 10px; overflow: hidden; margin-top:5px; }
+        #lock-progress { width: 0%; height: 100%; background: var(--success); transition: width 0.1s linear; }
+        .action-buttons { display: flex; gap: 8px; }
         .act-btn {
-            flex: 1; border: none; padding: 10px; border-radius: 12px;
-            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            flex: 1; border: none; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 12px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
         }
-        .btn-clear { background: white; color: var(--danger); }
+        .btn-clear { background: #fee2e2; color: var(--danger); }
         .btn-speak { background: var(--primary); color: white; }
-        .act-btn:active { transform: scale(0.98); }
 
-        /* --- SCANNER RESULT (BAWAH) --- */
-        .result-container {
-            position: absolute; bottom: 30px; left: 20px; right: 20px;
-            background: var(--glass); padding: 20px; border-radius: 20px;
+        #challenge-ui { display: none; width: 100%; height: 100%; pointer-events: none; }
+        .game-hud {
+            position: absolute; top: 20px; left: 20px; right: 20px; z-index: 25; pointer-events: auto;
             display: flex; align-items: center; justify-content: space-between;
-            z-index: 20; border: 1px solid rgba(255,255,255,0.8);
         }
-        .result-label { font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase; }
-        .result-value { font-size: 32px; color: var(--dark); font-weight: 800; line-height: 1; }
-        .scan-indicator {
-            width: 40px; height: 40px; border-radius: 50%; background: #E0F2FE;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--primary); font-size: 20px;
+        .hud-score {
+            background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+            padding: 8px 16px; border-radius: 50px; display: flex; align-items: center; gap: 8px;
+            color: #FFD700; font-weight: 800; font-size: 18px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .hud-target {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            background: white; padding: 10px 25px; border-radius: 20px;
+            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 4px solid var(--primary);
+        }
+        .hud-target-label { font-size: 9px; font-weight: 700; color: #64748B; letter-spacing: 1px; }
+        .hud-target-char { font-size: 36px; font-weight: 900; color: var(--dark); line-height: 1; }
+        .hud-timer {
+            position: relative; width: 50px; height: 50px;
+            background: var(--glass); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .timer-svg { transform: rotate(-90deg); width: 50px; height: 50px; }
+        .timer-circle-bg { fill: none; stroke: rgba(255,255,255,0.2); stroke-width: 5; }
+        .timer-circle-progress { 
+            fill: none; stroke: var(--success); stroke-width: 5; 
+            stroke-dasharray: 126; stroke-dashoffset: 0; 
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s; stroke-linecap: round;
+        }
+        .timer-text { position: absolute; color: white; font-size: 14px; font-weight: 700; }
+
+        #feedback-overlay {
+            position: absolute; inset: 0; z-index: 50; display: none;
+            justify-content: center; align-items: center; flex-direction: column;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+        }
+        .feedback-content { text-align: center; transform: scale(0); animation: popIn 0.4s forwards; }
+        .fb-emoji { font-size: 80px; margin-bottom: 10px; display: block; }
+        .fb-title { font-size: 40px; font-weight: 900; color: white; margin: 0; -webkit-text-stroke: 1px black; }
+        .fb-subtitle { font-size: 16px; color: white; font-weight: 600; opacity: 0.9; margin-top: 5px; }
+        @keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+
+        .result-container {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
+            padding: 10px 30px; border-radius: 40px;
+            display: flex; flex-direction: column; align-items: center;
+            z-index: 20; min-width: 120px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .result-value { font-size: 48px; color: var(--primary); font-weight: 800; line-height: 1; }
+
+        #info-modal {
+            position: absolute; inset: 0; z-index: 10000;
+            background: rgba(0,0,0,0.9); display: none;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-card {
+            background: #1E293B; width: 100%; max-width: 350px; border-radius: 24px; padding: 25px;
+            color: white; border: 1px solid rgba(255,255,255,0.1);
+            max-height: 80vh; overflow-y: auto;
+        }
+        .guide-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 20px 0; }
+        .guide-item {
+            background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Loading */
-        #loading-overlay {
-            position: absolute; inset: 0; background: var(--light); z-index: 50;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        #loading-overlay { position: absolute; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+        @media screen and (max-width: 600px) {
+            .word-builder-container { top: 70px; width: 90%; }
+            .game-hud { top: 70px; }
+            .result-container { bottom: 50px; }
+            .guide-grid { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
 
@@ -142,8 +184,36 @@
     <div id="home-screen">
         <div class="brand-logo"><i class="fas fa-hands-asl-interpreting"></i></div>
         <h1 class="app-title">BISINDO Pro</h1>
-        <p style="color:#94A3B8; margin-top:5px;">Penerjemah Isyarat Real-Time</p>
-        <button class="btn-start" onclick="startApp()">MULAI SESI</button>
+        <p style="color:#94A3B8; margin-top:5px; font-size:14px;">Belajar & Bermain AR</p>
+        <div class="btn-group">
+            <button class="btn-menu btn-primary" onclick="startApp('challenge')"><i class="fas fa-gamepad"></i> MULAI GAME</button>
+            <button class="btn-menu" onclick="startApp('practice')"><i class="fas fa-pen"></i> MODE LATIHAN</button>
+            <button class="btn-menu" onclick="toggleInfo(true)"><i class="fas fa-book"></i> PANDUAN</button>
+        </div>
+    </div>
+
+    <div id="info-modal">
+        <div class="modal-card">
+            <h3 style="margin-top:0; color:var(--primary)">Kamus Gerakan</h3>
+            <div class="guide-grid">
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">A</div><div style="font-size:8px; color:#aaa;">Kepalan</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">B</div><div style="font-size:8px; color:#aaa;">1+3 Jari</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">C</div><div style="font-size:8px; color:#aaa;">Lengkung</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">D</div><div style="font-size:8px; color:#aaa;">1+C</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">E</div><div style="font-size:8px; color:#aaa;">3 Jari</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">F</div><div style="font-size:8px; color:#aaa;">1+2 Atap</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">G</div><div style="font-size:8px; color:#aaa;">2 Kepal</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">H</div><div style="font-size:8px; color:#aaa;">1+2 Sejajar</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">I</div><div style="font-size:8px; color:#aaa;">Kelingking</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">J</div><div style="font-size:8px; color:#aaa;">Kel. Miring</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">K</div><div style="font-size:8px; color:#aaa;">2 Telunjuk</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">L</div><div style="font-size:8px; color:#aaa;">Letter L</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">M</div><div style="font-size:8px; color:#aaa;">5+3 Jari</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">N</div><div style="font-size:8px; color:#aaa;">5+2 Jari</div></div>
+                <div class="guide-item"><div style="font-size:16px; font-weight:800;">O</div><div style="font-size:8px; color:#aaa;">Bulat</div></div>
+            </div>
+            <button onclick="toggleInfo(false)" style="width:100%; padding:10px; border-radius:10px; border:none; background:var(--primary); color:white; font-weight:bold;">TUTUP</button>
+        </div>
     </div>
 
     <div id="ar-screen">
@@ -151,31 +221,47 @@
             <i class="fas fa-circle-notch fa-spin" style="font-size: 30px; color: #2563EB;"></i>
             <div style="margin-top:15px; font-weight:600; color:#475569;">Memuat AI...</div>
         </div>
+        <div class="ar-header"><button class="back-btn" onclick="location.reload()"><i class="fas fa-home"></i></button></div>
 
-        <div class="ar-header">
-            <div class="back-btn" onclick="location.reload()"><i class="fas fa-chevron-left"></i></div>
-        </div>
-
-        <div class="word-builder-container">
-            <div class="word-box">
-                <div style="font-size: 10px; color: #64748B; letter-spacing: 1px; width: 100%;">KATA TERBENTUK:</div>
-                <div id="word-display">...</div>
-                <div class="progress-track">
-                    <div id="lock-progress"></div>
+        <div id="practice-ui">
+            <div class="word-builder-container">
+                <div class="word-box">
+                    <div class="word-label">KATA TERBENTUK</div>
+                    <div id="word-display">...</div>
+                    <div class="progress-track"><div id="lock-progress"></div></div>
+                </div>
+                <div class="action-buttons">
+                    <button class="act-btn btn-clear" onclick="clearWord()"><i class="fas fa-trash"></i> Hapus</button>
+                    <button class="act-btn btn-speak" onclick="speakWord()"><i class="fas fa-volume-up"></i> Baca</button>
                 </div>
             </div>
-            <div class="action-buttons">
-                <button class="act-btn btn-clear" onclick="clearWord()"><i class="fas fa-trash"></i> Hapus</button>
-                <button class="act-btn btn-speak" onclick="speakWord()"><i class="fas fa-volume-up"></i> Baca</button>
+        </div>
+
+        <div id="challenge-ui">
+            <div class="game-hud">
+                <div class="hud-score"><i class="fas fa-star"></i> <span id="score-val">0</span></div>
+                <div class="hud-target"><div class="hud-target-label">BUAT HURUF</div><div id="target-char" class="hud-target-char">?</div></div>
+                <div class="hud-timer">
+                    <svg class="timer-svg">
+                        <circle class="timer-circle-bg" cx="25" cy="25" r="20"></circle>
+                        <circle id="timer-progress" class="timer-circle-progress" cx="25" cy="25" r="20"></circle>
+                    </svg>
+                    <div id="timer-text" class="timer-text">10</div>
+                </div>
             </div>
         </div>
 
-        <div class="result-container">
-            <div>
-                <div class="result-label">Terdeteksi</div>
-                <div class="result-value" id="big-char">...</div>
+        <div id="feedback-overlay">
+            <div class="feedback-content">
+                <span id="fb-emoji" class="fb-emoji">🎉</span>
+                <h1 id="fb-text" class="fb-title">BENAR!</h1>
+                <div id="fb-sub" class="fb-subtitle">+10 Poin</div>
             </div>
-            <div class="scan-indicator"><i class="fas fa-camera"></i></div>
+        </div>
+
+        <div class="result-container" id="result-box">
+            <div style="font-size:9px; font-weight:700; color:#64748B;">TERDETEKSI</div>
+            <div class="result-value" id="big-char">...</div>
         </div>
 
         <video id="webcam" autoplay playsinline></video>
@@ -189,250 +275,242 @@
         import { FilesetResolver, HandLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
 
         let handLandmarker, video, canvas, renderer, scene, camera, textMesh, loadedFont;
+        let mode = 'practice', currentLetter = "", constructedWord = "", holdCounter = 0, lastDetected = "";
+        let score = 0, targetLetter = "", challengeTimer = null, timeLeft = 10;
         
-        // VARIABLE UNTUK MENULIS KATA
-        let constructedWord = "";
-        let holdCounter = 0;
-        let lastDetected = "";
-        let currentLetter = "";
-        const HOLD_THRESHOLD = 50; // Sekitar 1.5 - 2 Detik
-
-        // --- AUDIO SYSTEM ---
-        function initAudio() { 
-            const s = window.speechSynthesis; 
-            s.speak(new SpeechSynthesisUtterance("")); 
-        }
+        // --- DAFTAR SOAL UPDATE (A-N + O) ---
+        const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
         
-        window.speakWord = () => { 
-            const text = constructedWord || "Belum ada kata";
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'id-ID'; u.rate = 1.0;
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(u);
-        };
+        let currentPos = new THREE.Vector3(0,0,0), targetPos = new THREE.Vector3(0,0,0);
 
-        window.clearWord = () => { 
-            constructedWord = ""; 
-            updateWordUI(); 
-        };
-
-        function updateWordUI() {
-            const display = document.getElementById('word-display');
-            display.innerText = constructedWord || "...";
+        window.toggleInfo = (s) => document.getElementById('info-modal').style.display = s ? 'flex' : 'none';
+        
+        const synth = window.speechSynthesis;
+        function speak(txt) {
+            const u = new SpeechSynthesisUtterance(txt);
+            u.lang = 'id-ID'; u.rate = 1.1; synth.cancel(); synth.speak(u);
         }
+        window.speakWord = () => speak(constructedWord || "Kosong");
+        window.clearWord = () => { constructedWord = ""; document.getElementById('word-display').innerText = "..."; };
 
-        // --- MAIN APP START ---
-        window.startApp = async () => {
-            initAudio();
+        window.startApp = async (selectedMode) => {
+            mode = selectedMode;
             document.getElementById('home-screen').style.opacity = '0';
             setTimeout(() => { document.getElementById('home-screen').style.display = 'none'; }, 500);
             document.getElementById('ar-screen').style.display = 'block';
 
-            // Init MediaPipe
+            if(mode === 'practice') document.getElementById('practice-ui').style.display = 'block';
+            else document.getElementById('challenge-ui').style.display = 'block';
+
             const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
             handLandmarker = await HandLandmarker.createFromOptions(vision, {
                 baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", delegate: "GPU" },
-                runningMode: "VIDEO", numHands: 2, 
-                minHandDetectionConfidence: 0.6, minHandPresenceConfidence: 0.6, minTrackingConfidence: 0.6
+                runningMode: "VIDEO", numHands: 2, minHandDetectionConfidence: 0.6
             });
 
             video = document.getElementById('webcam');
             canvas = document.getElementById('output_canvas');
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } } });
             video.srcObject = stream;
 
-            // Init ThreeJS
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 100);
             camera.position.z = 15;
             renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            const light = new THREE.DirectionalLight(0xffffff, 1.5);
-            light.position.set(2, 2, 5);
-            scene.add(light);
-            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            
+            const light = new THREE.DirectionalLight(0xffffff, 2.5); light.position.set(2,5,5); scene.add(light);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
             
             const loader = new FontLoader();
             loadedFont = await new Promise(r => loader.load('https://unpkg.com/three@0.160.0/examples/fonts/gentilis_bold.typeface.json', r));
             
             document.getElementById('loading-overlay').style.display = 'none';
+            if(mode === 'challenge') startNextChallenge();
             loop();
         };
 
-        // --- LOGIKA DETEKSI JARI (UPDATE: A, B, C, D) ---
-        function detectLetters(lm, lm2, isDualHand) {
-            const getDist = (i, j) => Math.hypot(lm[i].x - lm[j].x, lm[i].y - lm[j].y);
+        function startNextChallenge() {
+            targetLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+            document.getElementById('target-char').innerText = targetLetter;
+            speak("Buat huruf " + targetLetter);
+            timeLeft = 10; updateTimerVisual(timeLeft);
+            if(challengeTimer) clearInterval(challengeTimer);
+            challengeTimer = setInterval(() => {
+                timeLeft -= 0.1;
+                updateTimerVisual(timeLeft);
+                if(timeLeft <= 0) endChallenge(false);
+            }, 100);
+        }
+
+        function updateTimerVisual(time) {
+            document.getElementById('timer-text').innerText = Math.ceil(time);
+            const circle = document.getElementById('timer-progress');
+            const circumference = 2 * Math.PI * 20;
+            const offset = circumference - (time / 10) * circumference;
+            circle.style.strokeDashoffset = offset;
+            if(time > 6) circle.style.stroke = "#10B981";
+            else if(time > 3) circle.style.stroke = "#F59E0B";
+            else circle.style.stroke = "#EF4444";
+        }
+
+        function endChallenge(win) {
+            clearInterval(challengeTimer);
+            const overlay = document.getElementById('feedback-overlay');
+            const em = document.getElementById('fb-emoji');
+            const tx = document.getElementById('fb-text');
+            const sub = document.getElementById('fb-sub');
             
-            // Helper: Cek Jari Lurus
-            const isExt = (lmParams, tip, pip) => {
-                const dTip = Math.hypot(lmParams[tip].x - lmParams[0].x, lmParams[tip].y - lmParams[0].y);
-                const dPip = Math.hypot(lmParams[pip].x - lmParams[0].x, lmParams[pip].y - lmParams[0].y);
-                return dTip > dPip + 0.04; 
-            };
+            overlay.style.display = 'flex';
+            if(win) {
+                score += 10; em.innerText = "🎉"; tx.innerText = "BENAR!"; sub.innerText = "+10 Poin"; speak("Hebat");
+            } else {
+                em.innerText = "⏰"; tx.innerText = "WAKTU HABIS!"; sub.innerText = "Coba lagi!"; speak("Waktu habis");
+            }
+            document.getElementById('score-val').innerText = score;
+            setTimeout(() => { overlay.style.display = 'none'; startNextChallenge(); }, 2000);
+        }
 
-            // Helper: Status 5 Jari
-            const checkHandPattern = (handLM) => {
-                return {
-                    T: isExt(handLM, 8, 6),   // Telunjuk
-                    M: isExt(handLM, 12, 10), // Tengah
-                    R: isExt(handLM, 16, 14), // Manis
-                    K: isExt(handLM, 20, 18), // Kelingking
-                };
-            };
+        // --- HELPER UNTUK CEK JARI ---
+        const getDist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+        const isStraight = (lm, tip, pip) => {
+            const wrist = lm[0];
+            return getDist(lm[tip], wrist) > getDist(lm[pip], wrist) + 0.03;
+        };
 
-            // --- 1. DETEKSI DUA TANGAN (Prioritas: A, B, D) ---
-            if (isDualHand && lm2) {
-                const h1 = checkHandPattern(lm);
-                const h2 = checkHandPattern(lm2);
-                
-                // Definisi Bentuk Dasar:
-                // 1. POLE (Tiang/Angka 1): Cuma Telunjuk Lurus
-                const isPole = (h) => h.T && !h.M && !h.R && !h.K;
-                
-                // 2. THREE (Angka 3 untuk B): Telunjuk, Tengah, Manis Lurus
-                const isThree = (h) => h.T && h.M && h.R && !h.K;
+        const checkHand = (lm) => ({
+            T: isStraight(lm, 8, 6), M: isStraight(lm, 12, 10),
+            R: isStraight(lm, 16, 14), K: isStraight(lm, 20, 18), J: isStraight(lm, 4, 2)
+        });
 
-                // 3. SHAPE C (Lengkung untuk D): Sisa jari tekuk, ada jarak Jempol-Telunjuk
-                const isShapeC = (h, lmData) => {
-                    const gap = Math.hypot(lmData[4].x - lmData[8].x, lmData[4].y - lmData[8].y);
-                    return !h.M && !h.R && !h.K && gap > 0.05 && gap < 0.25;
-                };
+        // Helper Tambahan K, L, M, N
+        const isPole = (h) => h.T && !h.M && !h.R && !h.K;
+        const isTwo = (h) => h.T && h.M && !h.R && !h.K;
+        const isThree = (h) => h.T && h.M && h.R && !h.K;
+        const isFist = (h) => !h.T && !h.M && !h.R && !h.K;
+        const isFive = (h) => h.T && h.M && h.R && h.K && h.J;
+        
+        const isShapeC = (lmData) => {
+            const gap = getDist(lmData[4], lmData[8]);
+            return gap > 0.05 && gap < 0.2; 
+        };
 
-                // Cek Status Tangan Kiri & Kanan
-                const h1_Pole = isPole(h1);
-                const h2_Pole = isPole(h2);
-                
-                const distHands = Math.hypot(lm[8].x - lm2[8].x, lm[8].y - lm2[8].y);
+        // --- DETEKSI HURUF (A - N + O) ---
+        function detectLetters(lm, lm2, isDual) {
+            const h1 = checkHand(lm);
 
-                // --- HURUF A (Dua Tiang Nempel) ---
-                if (h1_Pole && h2_Pole && distHands < 0.25) return "A";
+            // --- LOGIKA 2 TANGAN (M, N, G, F, H, B, D, K, A) ---
+            if (isDual && lm2) {
+                const h2 = checkHand(lm2);
+                const distHands = getDist(lm[8], lm2[8]);
 
-                // --- HURUF B (Satu Tiang + Satu Angka 3) ---
-                const h1_Three = isThree(h1);
-                const h2_Three = isThree(h2);
-                if ((h1_Pole && h2_Three) || (h1_Three && h2_Pole)) {
-                    if (distHands < 0.35) return "B";
+                // HURUF M: 5 Jari + 3 Jari
+                if ((isFive(h1) && isThree(h2)) || (isThree(h1) && isFive(h2))) return "M";
+
+                // HURUF N: 5 Jari + 2 Jari
+                if ((isFive(h1) && isTwo(h2)) || (isTwo(h1) && isFive(h2))) return "N";
+
+                // HURUF K: 1 Jari + 1 Jari (Dekat)
+                if (isPole(h1) && isPole(h2) && distHands < 0.25) return "K";
+
+                // HURUF G: 2 Kepal Bertumpuk
+                if (isFist(h1) && isFist(h2)) {
+                    if (Math.abs(lm[0].y - lm2[0].y) > 0.1) return "G";
                 }
 
-                // --- HURUF D (Satu Tiang + Satu Huruf C) ---
-                const h1_C = isShapeC(h1, lm);
-                const h2_C = isShapeC(h2, lm2);
-                // Logika: Kiri C + Kanan Tiang ATAU Kiri Tiang + Kanan C
-                if ((h1_C && h2_Pole) || (h1_Pole && h2_C)) {
-                    if (distHands < 0.35) return "D";
+                // HURUF F: 1 Jari + 2 Jari (Atap)
+                if ((isPole(h1) && isTwo(h2)) || (isTwo(h1) && isPole(h2))) {
+                    if (Math.abs(lm[0].y - lm2[0].y) > 0.1) return "F";
+                    return "H"; // Sejajar = H
                 }
+
+                // HURUF B: 1 + 3 Jari
+                if ((isPole(h1) && isThree(h2)) || (isThree(h1) && isPole(h2))) return "B";
+
+                // HURUF D: 1 + C
+                if ((isPole(h1) && isShapeC(lm2)) || (isShapeC(lm) && isPole(h2))) return "D";
+
+                // HURUF A (Dual)
+                if (distHands < 0.15 && isFist(h1) && isFist(h2)) return "A";
             }
 
-            // --- 2. DETEKSI SATU TANGAN (C, O, dll) ---
-            const stat = checkHandPattern(lm);
-            const dist_J_T = getDist(4, 8); // Jarak Jempol-Telunjuk
+            // --- LOGIKA 1 TANGAN (L, O, J, I, C, E, U, A) ---
+            const distJT = getDist(lm[4], lm[8]);
 
-            // C (Satu Tangan)
-            if (!stat.M && !stat.R && !stat.K) {
-                if (dist_J_T > 0.06 && dist_J_T < 0.22) return "C";
+            // HURUF L
+            if (h1.J && h1.T && !h1.M && !h1.R && !h1.K) return "L";
+
+            // HURUF O
+            if (distJT < 0.08) {
+                if (!h1.M && !h1.R && !h1.K) return "O"; 
+                if (!isStraight(lm, 8, 6)) return "O";   
             }
 
-            // O (Bulat/Nempel)
-            if (dist_J_T <= 0.06 && !stat.M && !stat.R && !stat.K) return "O";
+            // HURUF J
+            if (h1.K && !h1.T && !h1.M && !h1.R) {
+                const tilt = Math.abs(lm[20].x - lm[18].x);
+                if (tilt > 0.04) return "J"; 
+                return "I"; 
+            }
 
-            // F (OK Sign)
-            if (dist_J_T < 0.06 && stat.M && stat.R && stat.K) return "F";
-
-            // I (Kelingking)
-            if (stat.K && !stat.T && !stat.M && !stat.R) return "I";
-
-            // U (Telunjuk Jempol)
-            const J_Straight = Math.hypot(lm[4].x - lm[5].x, lm[4].y - lm[5].y) > 0.05;
-            if (stat.T && J_Straight && !stat.M && !stat.R && !stat.K) return "U";
+            if (distJT > 0.05 && distJT < 0.25 && !h1.M && !h1.R && !h1.K && !h1.T) return "C";
+            if (h1.T && h1.M && h1.R && !h1.K) return "E";
+            if (h1.T && !h1.M && !h1.R && !h1.K) return "U";
+            if (!h1.T && !h1.M && !h1.R && !h1.K) return "A";
 
             return "";
         }
 
-        // --- PROSES MENULIS (HOLD TO TYPE) ---
-        function handleTyping(char) {
-            const bar = document.getElementById('lock-progress');
-            
-            if (char !== "" && char === lastDetected) {
-                holdCounter++;
-                let progress = Math.min((holdCounter / HOLD_THRESHOLD) * 100, 100);
-                bar.style.width = progress + "%";
-
-                if (holdCounter === HOLD_THRESHOLD) {
-                    // Huruf Terkunci!
-                    constructedWord += char.charAt(0);
-                    updateWordUI();
-                    
-                    // Efek Visual
-                    bar.style.backgroundColor = "#10B981"; // Hijau
-                    setTimeout(() => { 
-                        bar.style.width = "0%"; 
-                        bar.style.backgroundColor = "#2563EB"; 
-                    }, 500);
-                    
-                    holdCounter = 0;
-                }
-            } else {
-                holdCounter = 0;
-                bar.style.width = "0%";
-                lastDetected = char;
-            }
-        }
-
-        // --- LOOP UTAMA ---
         function loop() {
             const width = window.innerWidth; const height = window.innerHeight;
             if (canvas.width !== width) { renderer.setSize(width, height); camera.aspect = width/height; camera.updateProjectionMatrix(); }
             
             if (handLandmarker && video.currentTime > 0) {
                 const results = handLandmarker.detectForVideo(video, performance.now());
-                
                 if (results.landmarks.length > 0) {
                     const lm = results.landmarks[0];
-                    const lm2 = results.landmarks.length > 1 ? results.landmarks[1] : null;
-                    const isDual = results.landmarks.length > 1;
-
-                    // 1. Deteksi Huruf
-                    const char = detectLetters(lm, lm2, isDual);
-
-                    // 2. Jalankan Logika Menulis
-                    handleTyping(char);
-
+                    const char = detectLetters(lm, results.landmarks[1], results.landmarks.length > 1);
+                    
                     if (char) {
-                        // Update UI
                         document.getElementById('big-char').innerText = char;
-                        document.querySelector('.scan-indicator').style.color = '#2563EB';
+                        if (mode === 'practice') {
+                            if (char === lastDetected) {
+                                holdCounter++;
+                                let progress = Math.min((holdCounter / 40) * 100, 100);
+                                document.getElementById('lock-progress').style.width = progress + "%";
+                                if (holdCounter === 40) {
+                                    constructedWord += char;
+                                    document.getElementById('word-display').innerText = constructedWord;
+                                    holdCounter = 0; speak(char);
+                                }
+                            } else {
+                                holdCounter = 0; lastDetected = char;
+                                document.getElementById('lock-progress').style.width = "0%";
+                            }
+                        } else if (mode === 'challenge') {
+                            if (char === targetLetter) endChallenge(true);
+                        }
 
-                        // Update 3D Text
                         if (char !== currentLetter) {
                             if(textMesh) { scene.remove(textMesh); if(textMesh.geometry) textMesh.geometry.dispose(); }
-                            
-                            const textMat = new THREE.MeshPhongMaterial({ color: 0xFFFFFF, specular: 0x111111 });
-                            const geometry = new TextGeometry(char.charAt(0), { font: loadedFont, size: 2, height: 0.2 });
-                            geometry.center();
-                            textMesh = new THREE.Mesh(geometry, textMat);
-                            scene.add(textMesh);
+                            const mat = new THREE.MeshPhysicalMaterial({ color: 0x2563EB, metalness:0.2, roughness:0.1, clearcoat:1.0 });
+                            const geo = new TextGeometry(char, { font: loadedFont, size: 2.5, height: 0.5, curveSegments: 12, bevelEnabled: true, bevelThickness:0.1, bevelSize:0.05 });
+                            geo.center(); textMesh = new THREE.Mesh(geo, mat); scene.add(textMesh);
+                            textMesh.scale.x = -1; // MIRROR FIX
                         }
-                        
                         if(textMesh) {
-                            textMesh.position.set((lm[9].x - 0.5) * -15, -(lm[9].y - 0.5) * 10 + 2, -5);
-                            textMesh.rotation.y += 0.05; textMesh.rotation.x = 0.1;
+                            const anchor = lm[9]; 
+                            const tx = (anchor.x - 0.5) * -18; 
+                            const ty = -(anchor.y - 0.5) * 14 + 3;
+                            targetPos.set(tx, ty, -5); currentPos.lerp(targetPos, 0.2);
+                            textMesh.position.copy(currentPos);
+                            textMesh.rotation.x = 0.2; textMesh.rotation.y = Math.sin(Date.now() * 0.003) * 0.1;
                         }
                         currentLetter = char;
-                    } else {
-                        // Tangan ada, huruf tidak kenal -> HAPUS 3D
-                        if(textMesh) { scene.remove(textMesh); textMesh=null; }
-                        currentLetter = "";
-                        document.getElementById('big-char').innerText = "...";
-                        document.querySelector('.scan-indicator').style.color = '#F59E0B'; // Kuning
-                    }
+                    } 
                 } else {
-                    // Tangan Hilang -> HAPUS 3D & RESET
                     if(textMesh) { scene.remove(textMesh); textMesh=null; }
-                    currentLetter = "";
-                    lastDetected = ""; 
-                    document.getElementById('lock-progress').style.width = "0%";
-                    document.getElementById('big-char').innerText = "...";
-                    document.querySelector('.scan-indicator').style.color = '#ccc';
+                    currentLetter = ""; document.getElementById('big-char').innerText = "...";
                 }
             }
             renderer.render(scene, camera);
